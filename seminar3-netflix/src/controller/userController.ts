@@ -1,17 +1,13 @@
+import { UserCreateDTO } from './../interfaces/common/UserCreateDTO';
 import { Request, Response } from "express";
-import { validationResult } from "express-validator";
-import { rm, sc } from "../constants";
-import { fail, success } from "../constants/response";
-import { UserCreateDTO } from "../interfaces/UserCreateDTO";
-import { UserSignInDTO } from "../interfaces/UserSignInDTO";
-
-import jwtHandler from "../modules/jwtHandler";
 import { userService } from "../service";
+import { fail, success } from '../constants/response';
+import { rm, sc } from '../constants';
+import { validationResult } from 'express-validator';
+import jwtHandler from '../modules/jwtHandler';
+import { UserSignInDTO } from '../interfaces/common/UserSignInDTO';
 
 
-
-
-//* 유저 생성
 const createUser = async (req: Request, res: Response) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
@@ -31,7 +27,7 @@ const createUser = async (req: Request, res: Response) => {
 
   const result = {
     id: data.id,
-    name: data.userName,
+    name: data.name,
     accessToken,
   };
 
@@ -72,56 +68,16 @@ const signInUser = async (req: Request, res: Response) => {
 
 
 
-//* 유저 전체 조회
-const getAllUser = async (req: Request, res: Response) => {
-  const error = validationResult(req);
-  if (!error.isEmpty()) {
-    return res.status(sc.BAD_REQUEST).send(fail(sc.BAD_REQUEST, rm.BAD_REQUEST));
-  }
-  const data = await userService.getAllUser();
-  return res.status(200).json({ status: 200, message: "유저 전체 조회 성공", data });
-};
+const getUser = async(req:Request, res:Response) =>{
+    const data = await userService.getUser();
+    return res.status(200).json({ status: 200, message: "유저 전체 조회 성공", data });
+}
 
 
-//* 유저 정보 업데이트
-const updateUser = async (req: Request, res: Response) => {
-  const { name } = req.body;
-  const { userId } = req.params;
-  if (!name) return res.status(sc.BAD_REQUEST).send(fail(sc.BAD_REQUEST, rm.BAD_REQUEST));
-
-  const updateUser = await userService.updateUser(+userId, name);
-  return res.status(200).json({ status: 200, message: "유저 전체 조회 성공", updateUser });
-
-};
-
-
-//* 유저 삭제
-
-const deleteUser = async (req: Request, res: Response) => {
-  const { userId } = req.params;
-  await userService.deleteUser(+userId);
-  return res.status(200).json({ status: 200, message: "유저 삭제 성공"});
-};
-
-//* 유저 조회
-const getUserById = async (req: Request, res: Response) => {
-  const { userId } = req.params;
-
-  const data = await userService.getUserById(+userId);
-
-  if (!data) {
-    return res.status(sc.BAD_REQUEST).send(fail(sc.BAD_REQUEST, rm.BAD_REQUEST));
-  }
-  return res.status(200).json({ status: 200, message: "유저 조회 성공", data });
-};
 
 const userController = {
-  createUser,
-  getAllUser,
-  getUserById,
-  updateUser,
-  deleteUser,
-  signInUser
-};
-
+    createUser,
+    getUser,
+    signInUser
+}
 export default userController;
