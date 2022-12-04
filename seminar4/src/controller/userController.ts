@@ -74,20 +74,28 @@ const signInUser = async (req: Request, res: Response) => {
 
 //* 유저 전체 조회
 const getAllUser = async (req: Request, res: Response) => {
-  const error = validationResult(req);
-  if (!error.isEmpty()) {
-    return res.status(sc.BAD_REQUEST).send(fail(sc.BAD_REQUEST, rm.BAD_REQUEST));
-  }
-  const data = await userService.getAllUser();
+  const {page, limit} = req.query;
+  const data = await userService.getAllUser(Number(page),Number(limit) )
   return res.status(200).json({ status: 200, message: "유저 전체 조회 성공", data });
+  
 };
 
+//유저 정보 조회
+// const getAllUser = async (req: Request, res: Response) => {
+ 
+//   const error = validationResult(req);
+//   if (!error.isEmpty()) {
+//     return res.status(sc.BAD_REQUEST).send(fail(sc.BAD_REQUEST, rm.BAD_REQUEST));
+//   }
+//   const data = await userService.getAllUser();
+//   return res.status(200).json({ status: 200, message: "유저 전체 조회 성공", data });
+// };
 
 //* 유저 정보 업데이트
 const updateUser = async (req: Request, res: Response) => {
   const { name } = req.body;
   const { userId } = req.params;
-  if (!name) return res.status(400).json({ status: 400, message: "유저 정보 업데이트 실패" });
+  if (!name) return res.status(sc.BAD_REQUEST).send(fail(sc.BAD_REQUEST, rm.BAD_REQUEST));
 
   const updateUser = await userService.updateUser(+userId, name);
   return res.status(200).json({ status: 200, message: "유저 전체 조회 성공", updateUser });
@@ -110,10 +118,27 @@ const getUserById = async (req: Request, res: Response) => {
   const data = await userService.getUserById(+userId);
 
   if (!data) {
-    return res.status(404).json({ status: 404, message: "NOT_FOUND" });
+    return res.status(sc.BAD_REQUEST).send(fail(sc.BAD_REQUEST, rm.BAD_REQUEST));
   }
   return res.status(200).json({ status: 200, message: "유저 조회 성공", data });
 };
+
+
+//* GET ~/user?keyword=가희
+const searchUserByUserName = async(req: Request, res: Response) =>{
+  const { keyword,option} = req.query ; // keyword = 가희
+
+  const data = await userService.searchUserByName(keyword as string,option as string);
+
+  if (!data){
+    return res.status(sc.BAD_REQUEST).send(fail(sc.BAD_REQUEST, rm.SEARCH_USER_FAIL));
+  }
+
+  return res.status(sc.OK).send(success(sc.OK, rm.SEARCH_USER_SUCCESS, data));
+
+}
+
+
 
 const userController = {
   createUser,
@@ -121,7 +146,8 @@ const userController = {
   getUserById,
   updateUser,
   deleteUser,
-  signInUser
+  signInUser,
+  searchUserByUserName
 };
 
 export default userController;

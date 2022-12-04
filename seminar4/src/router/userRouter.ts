@@ -4,8 +4,6 @@ import { userController } from "../controller";
 import { auth } from "../middlewares";
 const router: Router = Router();
 
-router.get("/:userId", auth ,userController.getUserById);
-
 
 //* 유저 생성 - POST api/user
 router.post(
@@ -27,11 +25,22 @@ router.post(
 
 
 //* 전체 유저 조회 ( GET api/user )
-router.get("/",auth, userController.getAllUser);
+router.get("/", userController.getAllUser);
 
 //* 유저 정보 업데이트 ( PATCH api/user/:userId )
-router.patch("/:userId", auth,userController.updateUser);
+router.patch("/:userId",userController.updateUser);
 
 //* 유저 삭제 ( DELETE api/user/:userId )
-router.delete("/:userId",auth, userController.deleteUser);
+router.delete("/:userId", userController.deleteUser);
+
+//~ 이름으로 유저 검색 - GET user/search?keyword={}&option={}
+//  보통으로는 search라는 라우터를 하나 만든다 
+router.get("/search",userController.searchUserByUserName);
+// api/user/search?keyword
+// api/user/1
+
+
+
+router.get("/:userId" ,userController.getUserById);
+
 export default router;
